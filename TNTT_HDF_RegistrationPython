@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+"""
+Spyder Editor
+
+This temporary script file is located here:
+C:\Users\imacwindows\.spyder2\.temp.py
+"""
+
+import easygui as eg
+
+def collect_kid_info(msg,title,fieldNames,blank):
+    thiskidinfo = eg.multenterbox(msg,title,fieldNames,blank)
+    test_empty=1    
+    for items in thiskidinfo:
+        test_empty=test_empty*(items!='')
+    if test_empty==0:
+        eg.msgbox('ALL FIELDS MUST BE FILLED')
+        thiskidinfo = collect_kid_info(msg,title,fieldNames,thiskidinfo)
+    return thiskidinfo
+
+msg = 'Please fill out each box. If it is not applicable, please write N/A. Xin điền vào mỗi ô. Ô nào không cần, xin điền N/A.'
+title = 'TNTT Registration Form'
+fieldNames = ['Tên gọi và Tên Họ của em (First and Last Name of Child)', 'Tên Thánh (Saint Name)','DOB (mm/dd/yy)', 'Tên Phụ Huynh 1 (Parent 1 First and Last Name)', 'Tên Phụ Huynh 2 (Parent 2 First and Last Name)', 'Địa Chỉ (Street Address)', 'Thành Phố (City)', 'Zip Code', 'Điện Thoại Nhà (Home Phone) ###-###-####', 'Cell Phone Number ###-###-####', 'Email']
+thiskidinfo = []
+kidsInfos = []
+msgNextChild = 'Enter information for next child/Xin điền vào cho em kế tiếp'
+titleNextChild = 'Information for next child'
+fieldNamesNextChild = ['Name of child/Tên Em (First/Tên gọi Last/Tên họ)', 'Saint Name/Tên Thánh', 'DOB (mm/dd/yy)']
+
+eg.msgbox('Start')
+blank=['']*len(fieldNames)
+stopcollecting = 0
+while stopcollecting == 0: 
+    thiskidinfo = collect_kid_info(msg,title,fieldNames,blank)
+    kidsInfos.append(thiskidinfo)
+    print kidsInfos
+    moreKids = eg.boolbox(msg='Do you have additional children with the same information?/Quý vị có thêm con em nào ở cùng địa chỉ muốn ghi danh không?')
+    while moreKids == 1:
+        blank=['']*len(fieldNamesNextChild)
+        nextKidname =collect_kid_info(msgNextChild, titleNextChild, fieldNamesNextChild,blank)
+        nextKidInfo =[0,0,0,0,0,0,0,0,0,0,0]
+        nextKidInfo[3:11] = thiskidinfo[3:11]
+        nextKidInfo[0:3] = nextKidname
+        print nextKidInfo
+        kidsInfos.append(nextKidInfo)
+        print kidsInfos
+        moreKids = eg.boolbox(msg='Do you have additional children with same the information?/Quý vị có thêm con em nào ở cùng địa chỉ muốn ghi danh hôm nay không?')
+    eg.msgbox('Please contact Huynh Trưởng when finished/Xin gặp Huynh Trưởng khi xong')
+    stopcollecting = eg.boolbox(msg='Huynh Trưởng: Are you finished collecting information for this family?') 
+ 
+print 'ok, all done!'  
+
+outfilename = 'TNTT_Reg'
+outfilename = outfilename+'.csv'
+
+import csv
+ 
+ofile  = open(outfilename, "ab")
+writer = csv.writer(ofile, quotechar='"', quoting=csv.QUOTE_ALL)
+for row in kidsInfos:
+    writer.writerow(row)
+ofile.close()   
+
+
